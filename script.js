@@ -9,33 +9,14 @@ form = document.querySelector('#form'),
 operationName = document.querySelector('.operation__name'),
 operationAmount = document.querySelector('.operation__amount');
 
-let dbOperation = [
-  {
-    id: 'open1z',
-    description: 'Получил зарплату',
-    amount: 30000,
-  },
-  {
-    id: 'open2z',
-    description: 'Квартплата',
-    amount: -10000,
-  },
-  {
-    id: 'open3z',
-    description: 'Вложил в машину',
-    amount: -3000,
-  },
-  {
-    id: 'open4z',
-    description: 'Купил продукты',
-    amount: -6000,
-  },
-  {
-    id: 'open5z',
-    description: 'Купил подарок',
-    amount: -1000,
-  },
-];
+
+
+let dbOperation = JSON.parse(localStorage.getItem('calc')) || [];
+
+
+
+// Получаем данные из локал стораж, распарсим и сохраним в dbOperation
+
 
 const renderOperation = (operation) => { // operation дает нам все объекты массива 
 
@@ -50,8 +31,8 @@ const renderOperation = (operation) => { // operation дает нам все о�
 
   listItem.innerHTML = `${operation.description}
   <span class="history__money">${operation.amount} ₽</span>
-  <button class="history_delete">x</button>
-  `;                                                      // с помощью Интерполяции получаем значение ключи и значения и работаем с ними
+  <button class="history_delete" data-id="${operation.id}">x</button>
+  `;                                                                           // с помощью Интерполяции получаем значение ключи и значения и работаем с ними
 
   historyList.append(listItem); // в список добавляем li элемент
 
@@ -93,7 +74,7 @@ const addOperation = (event) => {
 
       dbOperation.push(operation);
       init();
-      console.log(dbOperation);
+      
 
     } else {
       if (!operationNameValue) operationName.style.borderColor = 'red';
@@ -104,15 +85,23 @@ const addOperation = (event) => {
     operationAmount.value = '';
 };
 
+// Удаляем дела
 const deleteOperation = (event) => {
-  if(event.target.classList.contains('history_delete'))
-  console.log(event);
+  const target = event.target;
+  if (event.target.classList.contains('history_delete')) {
+    dbOperation = dbOperation
+      .filter(operation => operation.id !== target.dataset.id);
+
+    init();
+  }
 };
 
 const init = () => {
   historyList.textContent = '';
   dbOperation.forEach(renderOperation) // елемент, индекс, массив
   updateBalance();
+  localStorage.setItem('calc', JSON.stringify(dbOperation)); // отправили данные в локал сторадж в строке обязательно ибо объекты от туда потом не достать
+
   // for(let i = 0; i < 5; i++) {
   //   renderOperation(dbOperation[i]); // Добавляем из элементов массива
   // }
